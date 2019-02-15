@@ -93,7 +93,7 @@ class EndEmploymentController @Inject()(auditService: AuditService,
       successfulJourneyCache <- successfullJourneyCacheFuture
     } yield {
       successfulJourneyCache match {
-        case Some(_) => Redirect(routes.EndEmploymentController.duplicateSubmissionWarning())
+        case Some(_) => Redirect(controllers.routes.DuplicateSubmissionWarningController.duplicateSubmissionWarning())
         case _ => Redirect(routes.EndEmploymentController.employmentUpdateRemoveDecision())
       }
     }
@@ -308,14 +308,6 @@ class EndEmploymentController @Inject()(auditService: AuditService,
         _ <- successfulJourneyCacheService.cache(Map(s"$TrackSuccessfulJourney_UpdateEndEmploymentKey-${mandatoryCacheSeq.head}" -> "true"))
         _ <- journeyCacheService.flush
       } yield Redirect(routes.EndEmploymentController.showConfirmationPage())
-  }
-
-  def duplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {
-    implicit request =>
-      implicit val user = request.taiUser
-      journeyCacheService.mandatoryValues(EndEmployment_NameKey, EndEmployment_EmploymentIdKey) map { mandatoryValues =>
-        Ok(views.html.employments.duplicateSubmissionWarning(DuplicateSubmissionWarningForm.createForm, mandatoryValues(0), mandatoryValues(1).toInt))
-      }
   }
 
   def submitDuplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {

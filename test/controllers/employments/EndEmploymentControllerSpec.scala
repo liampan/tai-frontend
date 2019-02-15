@@ -586,23 +586,7 @@ class EndEmploymentControllerSpec
 
       val result = endEmploymentTest.employmentUpdateRemove(employmentId)(fakeGetRequest)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result).get mustBe routes.EndEmploymentController.duplicateSubmissionWarning.url
-    }
-  }
-
-  "duplicateSubmissionWarning" must {
-    "show duplicateSubmissionWarning view" in {
-      val endEmploymentTest = createEndEmploymentTest
-      val employmentId = 1
-
-      when(endEmploymentJourneyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-        .thenReturn(Future.successful(Seq(employerName, employmentId.toString)))
-
-      val result = endEmploymentTest.duplicateSubmissionWarning(fakeGetRequest)
-      val doc = Jsoup.parse(contentAsString(result))
-
-      status(result) mustBe OK
-      doc.title() must include(Messages("tai.employment.warning.customGaTitle"))
+      redirectLocation(result).get mustBe controllers.routes.DuplicateSubmissionWarningController.duplicateSubmissionWarning.url
     }
   }
 
