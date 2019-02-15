@@ -260,7 +260,7 @@ GET         /incorrect-pension/check-your-answers                               
 POST        /incorrect-pension/check-your-answers                                      @controllers.pensions.UpdatePensionProviderController.submitYourAnswers
 GET         /incorrect-pension/success                                                 @controllers.pensions.UpdatePensionProviderController.confirmation
 GET         /incorrect-pension/redirect/:id                                            @controllers.pensions.UpdatePensionProviderController.UpdatePension(id: Int)
-GET         /incorrect-pension/warning                                                 @controllers.pensions.UpdatePensionProviderController.duplicateSubmissionWarning
+### GET         /incorrect-pension/warning                                                 @controllers.pensions.UpdatePensionProviderController.duplicateSubmissionWarning
 POST        /incorrect-pension/warning                                                 @controllers.pensions.UpdatePensionProviderController.submitDuplicateSubmissionWarning
 
 ## Tax Code Change
@@ -286,3 +286,6 @@ GET         /update-income/next-year/income/:empId/confirmed                    
 GET         /update-income/next-year/income/:empId/confirm                             @controllers.income.UpdateIncomeNextYearController.confirm(empId: Int)
 GET         /update-income/next-year/income/:empId/success                             @controllers.income.UpdateIncomeNextYearController.success(empId: Int)
 
+### Duplicate submission warning
+
+GET         /duplicate-submission-warning                                              @controllers.DuplicateSubmissionWarningController.duplicateSubmissionWarning

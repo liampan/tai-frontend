@@ -84,7 +84,6 @@ class UpdatePensionProviderController @Inject()(taxAccountService: TaxAccountSer
       }
   }
 
-
   def handleDoYouGetThisPension: Action[AnyContent] = (authenticate andThen validatePerson).async {
     implicit request =>
       journeyCacheService.mandatoryValues(UpdatePensionProvider_IdKey, UpdatePensionProvider_NameKey) flatMap { mandatoryVals =>
@@ -230,7 +229,7 @@ class UpdatePensionProviderController @Inject()(taxAccountService: TaxAccountSer
       successfulJourneyCache <- successfulJourneyCacheFuture
     } yield {
       successfulJourneyCache match {
-        case Some(_) => Redirect(routes.UpdatePensionProviderController.duplicateSubmissionWarning())
+        case Some(_) => Redirect(controllers.routes.DuplicateSubmissionWarningController.duplicateSubmissionWarning())
         case _ => Redirect(routes.UpdatePensionProviderController.doYouGetThisPension())
       }
     }
@@ -258,15 +257,6 @@ class UpdatePensionProviderController @Inject()(taxAccountService: TaxAccountSer
         case _ => throw new RuntimeException("Tax code income source is not available")
       }).recover {
         case NonFatal(e) => internalServerError(e.getMessage)
-      }
-
-  }
-
-  def duplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {
-    implicit request =>
-      implicit val user = request.taiUser
-      journeyCacheService.mandatoryValues(UpdatePensionProvider_NameKey, UpdatePensionProvider_IdKey) map { mandatoryValues =>
-        Ok(views.html.pensions.duplicateSubmissionWarning(DuplicateSubmissionWarningForm.createForm, mandatoryValues(0), mandatoryValues(1).toInt))
       }
 
   }

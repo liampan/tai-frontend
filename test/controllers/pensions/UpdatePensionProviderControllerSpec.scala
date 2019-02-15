@@ -390,7 +390,7 @@ class UpdatePensionProviderControllerSpec extends PlaySpec with FakeTaiPlayAppli
 
       val result = createController.UpdatePension(pensionId)(fakeGetRequest)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result).get mustBe routes.UpdatePensionProviderController.duplicateSubmissionWarning.url
+      redirectLocation(result).get mustBe controllers.routes.DuplicateSubmissionWarningController.duplicateSubmissionWarning().url
     }
 
     "return Internal Server error" when {
@@ -412,20 +412,6 @@ class UpdatePensionProviderControllerSpec extends PlaySpec with FakeTaiPlayAppli
 
         status(result) mustBe INTERNAL_SERVER_ERROR
       }
-    }
-  }
-
-  "duplicateSubmissionWarning" must {
-    "show duplicateSubmissionWarning view" in {
-
-      when(journeyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-        .thenReturn(Future.successful(Seq(pensionName, pensionId.toString)))
-
-      val result = createController.duplicateSubmissionWarning(fakeGetRequest)
-      val doc = Jsoup.parse(contentAsString(result))
-
-      status(result) mustBe OK
-      doc.title() must include(Messages("tai.pension.warning.customGaTitle"))
     }
   }
 
