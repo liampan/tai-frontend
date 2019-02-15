@@ -16,6 +16,7 @@
 
 package controllers
 
+import builders.RequestBuilder
 import controllers.actions.FakeValidatePerson
 import mocks.MockTemplateRenderer
 import org.jsoup.Jsoup
@@ -28,14 +29,19 @@ import play.api.i18n.MessagesApi
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.tai.service.journeyCache.JourneyCacheService
 import play.api.test.Helpers.{contentAsString, _}
+import uk.gov.hmrc.tai.util.constants.FormValuesConstants
 
 import scala.concurrent.Future
 
-class DuplicateSubmissionWarningControllerSpec extends PlaySpec with FakeTaiPlayApplication with MockitoSugar {
+class DuplicateSubmissionWarningControllerSpec extends PlaySpec with FakeTaiPlayApplication with MockitoSugar
+ with FormValuesConstants {
   implicit val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   val journeyCacheService = mock[JourneyCacheService]
   val successfulJourneyCacheService = mock[JourneyCacheService]
+  val name = "Income Name"
+  val id = "123"
+  private def fakePostRequest = RequestBuilder.buildFakeRequestWithAuth("POST")
 
   class DuplicateSubmissionWarningControllerTest extends DuplicateSubmissionWarningController(
     journeyCacheService,
@@ -44,16 +50,13 @@ class DuplicateSubmissionWarningControllerSpec extends PlaySpec with FakeTaiPlay
     FakeValidatePerson,
     mock[FormPartialRetriever],
     MockTemplateRenderer
-  )
+  ){
+    when(journeyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
+      .thenReturn(Future.successful(Seq(name, id)))
+  }
 
   "duplicateSubmissionWarning" must {
     "show duplicateSubmissionWarning view" in {
-
-      val name = "Income Name"
-      val id = "123"
-
-      when(journeyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-        .thenReturn(Future.successful(Seq(name, id)))
 
       val controller = new DuplicateSubmissionWarningControllerTest
       val result = controller.duplicateSubmissionWarning(fakeRequest)
@@ -63,4 +66,40 @@ class DuplicateSubmissionWarningControllerSpec extends PlaySpec with FakeTaiPlay
       doc.title() must include(messages("tai.pension.warning.customGaTitle"))
     }
   }
+
+  "submitDuplicateSubmissionWarning" must {
+
+    "redirect to the update remove employment decision page" when {
+      "I want to update my employment is selected" in {
+
+        val controller = new DuplicateSubmissionWarningControllerTest
+        val result = controller.submitDuplicateSubmissionWarning(fakePostRequest.withFormUrlEncodedBody(YesNoChoice -> YesValue))
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get mustBe controllers.pensions.routes.UpdatePensionProviderController.doYouGetThisPension().url
+      }
+    }
+
+    "redirect to the income source summary page" when {
+      "I want to return to my employment details is selected" in {
+
+        val controller = new DuplicateSubmissionWarningControllerTest
+        val result = controller.submitDuplicateSubmissionWarning(fakePostRequest.withFormUrlEncodedBody(YesNoChoice -> NoValue))
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get mustBe controllers.routes.IncomeSourceSummaryController.onPageLoad(id.toInt).url
+      }
+    }
+
+    "return BadRequest" when {
+      "there is a form validation error (standard form validation)" in {
+
+        val controller = new DuplicateSubmissionWarningControllerTest
+        val result = controller.submitDuplicateSubmissionWarning(fakePostRequest.withFormUrlEncodedBody(YesNoChoice -> ""))
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+  }
+
 }

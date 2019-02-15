@@ -27,7 +27,10 @@ import uk.gov.hmrc.tai.forms.pensions.DuplicateSubmissionWarningForm
 import uk.gov.hmrc.tai.service.journeyCache.JourneyCacheService
 import uk.gov.hmrc.tai.util.constants.JourneyCacheConstants
 import play.api.i18n.Messages.Implicits._
+import uk.gov.hmrc.tai.util.constants.FormValuesConstants
 import play.api.Play.current
+
+import scala.concurrent.Future
 
 class DuplicateSubmissionWarningController @Inject()(@Named("Update Pension Provider") journeyCacheService: JourneyCacheService,
                                                      @Named("Track Successful Journey") successfulJourneyCacheService: JourneyCacheService,
@@ -35,7 +38,8 @@ class DuplicateSubmissionWarningController @Inject()(@Named("Update Pension Prov
                                                      validatePerson: ValidatePerson,
                                                      override implicit val partialRetriever: FormPartialRetriever,
                                                      override implicit val templateRenderer: TemplateRenderer) extends TaiBaseController
-  with JourneyCacheConstants{
+  with JourneyCacheConstants
+  with FormValuesConstants {
 
   def duplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {
     implicit request =>
@@ -45,4 +49,25 @@ class DuplicateSubmissionWarningController @Inject()(@Named("Update Pension Prov
       }
   }
 
+  def submitDuplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {
+    implicit request =>
+      implicit val user = request.taiUser
+      journeyCacheService.mandatoryValues(UpdatePensionProvider_NameKey, UpdatePensionProvider_IdKey) flatMap { mandatoryValues =>
+        DuplicateSubmissionWarningForm.createForm.bindFromRequest.fold(
+          formWithErrors => {
+            Future.successful(BadRequest(views.html.pensions.
+              duplicateSubmissionWarning(formWithErrors, mandatoryValues(0), mandatoryValues(1).toInt)))
+          },
+          success => {
+            success.yesNoChoice match {
+              case Some(YesValue) => Future.successful(Redirect(controllers.pensions.routes.UpdatePensionProviderController.
+                doYouGetThisPension()))
+              case Some(NoValue) =>
+                Future.successful(Redirect(controllers.routes.IncomeSourceSummaryController.
+                  onPageLoad(mandatoryValues(1).toInt)))
+            }
+          }
+        )
+      }
+  }
 }

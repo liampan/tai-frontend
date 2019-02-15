@@ -415,48 +415,6 @@ class UpdatePensionProviderControllerSpec extends PlaySpec with FakeTaiPlayAppli
     }
   }
 
-  "submitDuplicateSubmissionWarning" must {
-
-    def journeyCacheCall = when(journeyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-      .thenReturn(Future.successful(Seq(pensionName, pensionId.toString)))
-
-    "redirect to the update remove employment decision page" when {
-      "I want to update my employment is selected" in {
-
-        journeyCacheCall
-
-        val result = createController.submitDuplicateSubmissionWarning(fakePostRequest.withFormUrlEncodedBody(YesNoChoice -> YesValue))
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get mustBe controllers.pensions.routes.UpdatePensionProviderController.doYouGetThisPension().url
-      }
-    }
-
-    "redirect to the income source summary page" when {
-      "I want to return to my employment details is selected" in {
-
-        journeyCacheCall
-
-        val result = createController.submitDuplicateSubmissionWarning(fakePostRequest.withFormUrlEncodedBody(YesNoChoice -> NoValue))
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get mustBe controllers.routes.IncomeSourceSummaryController.onPageLoad(pensionId).url
-      }
-    }
-
-    "return BadRequest" when {
-      "there is a form validation error (standard form validation)" in {
-
-        when(journeyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-          .thenReturn(Future.successful(Seq(pensionName, pensionId.toString)))
-
-        val result = createController.submitDuplicateSubmissionWarning(fakePostRequest.withFormUrlEncodedBody(YesNoChoice -> ""))
-
-        status(result) mustBe BAD_REQUEST
-      }
-    }
-  }
-
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private def createController = new UpdatePensionProviderTestController

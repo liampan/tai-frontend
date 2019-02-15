@@ -260,26 +260,4 @@ class UpdatePensionProviderController @Inject()(taxAccountService: TaxAccountSer
       }
 
   }
-
-  def submitDuplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {
-    implicit request =>
-      implicit val user = request.taiUser
-      journeyCacheService.mandatoryValues(UpdatePensionProvider_NameKey, UpdatePensionProvider_IdKey) flatMap { mandatoryValues =>
-        DuplicateSubmissionWarningForm.createForm.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(views.html.pensions.
-              duplicateSubmissionWarning(formWithErrors, mandatoryValues(0), mandatoryValues(1).toInt)))
-          },
-          success => {
-            success.yesNoChoice match {
-              case Some(YesValue) => Future.successful(Redirect(controllers.pensions.routes.UpdatePensionProviderController.
-                doYouGetThisPension()))
-              case Some(NoValue) =>
-                Future.successful(Redirect(controllers.routes.IncomeSourceSummaryController.
-                onPageLoad(mandatoryValues(1).toInt)))
-            }
-          }
-        )
-      }
-  }
 }

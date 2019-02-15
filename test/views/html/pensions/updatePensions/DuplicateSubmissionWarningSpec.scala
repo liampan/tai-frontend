@@ -59,7 +59,8 @@ class DuplicateSubmissionWarningSpec extends TaiViewSpec with FormValuesConstant
       messages("tai.pension.warning.radio1", pensionName),
       messages("tai.pension.warning.radio2"))
 
-    behave like pageWithContinueButtonForm("/check-income-tax/incorrect-pension/warning")
+
+    behave like pageWithContinueButtonForm("/check-income-tax/duplicate-submission-warning")
     behave like pageWithCancelLink(controllers.routes.IncomeSourceSummaryController.onPageLoad(pensionId))
 
     "return no errors with valid 'yes' choice" in {
