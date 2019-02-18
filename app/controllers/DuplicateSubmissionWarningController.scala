@@ -70,4 +70,25 @@ class DuplicateSubmissionWarningController @Inject()(@Named("Update Pension Prov
         )
       }
   }
+
+    def submitEmploymentsDuplicateSubmissionWarning: Action[AnyContent] = (authenticate andThen validatePerson).async {
+      implicit request =>
+        implicit val user = request.taiUser
+        journeyCacheService.mandatoryValues(EndEmployment_NameKey, EndEmployment_EmploymentIdKey) flatMap { mandatoryValues =>
+          DuplicateSubmissionWarningForm.createForm.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(BadRequest(views.html.employments.
+                duplicateSubmissionWarning(formWithErrors, mandatoryValues(0), mandatoryValues(1).toInt)))
+            },
+            success => {
+              success.yesNoChoice match {
+                case Some(YesValue) => Future.successful(Redirect(controllers.employments.routes.EndEmploymentController.
+                  employmentUpdateRemoveDecision()))
+                case Some(NoValue) => Future.successful(Redirect(controllers.routes.IncomeSourceSummaryController.
+                  onPageLoad(mandatoryValues(1).toInt)))
+              }
+            }
+          )
+        }
+    }
 }

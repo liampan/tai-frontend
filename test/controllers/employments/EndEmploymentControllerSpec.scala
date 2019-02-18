@@ -590,54 +590,6 @@ class EndEmploymentControllerSpec
     }
   }
 
-  "submitDuplicateSubmissionWarning" must {
-    "redirect to the update remove employment decision page" when {
-      "I want to update my employment is selected" in {
-        val endEmploymentTest = createEndEmploymentTest
-        val employmentId = 1
-
-        when(endEmploymentJourneyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-          .thenReturn(Future.successful(Seq(employerName, employmentId.toString)))
-
-        val result = endEmploymentTest.submitDuplicateSubmissionWarning(fakePostRequest
-          .withFormUrlEncodedBody(YesNoChoice -> YesValue))
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get mustBe controllers.employments.routes.EndEmploymentController.employmentUpdateRemoveDecision.url
-      }
-    }
-
-    "redirect to the income source summary page" when {
-      "I want to return to my employment details is selected" in {
-        val endEmploymentTest = createEndEmploymentTest
-        val employmentId = 1
-
-        when(endEmploymentJourneyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-          .thenReturn(Future.successful(Seq(employerName, employmentId.toString)))
-
-        val result = endEmploymentTest.submitDuplicateSubmissionWarning(fakePostRequest
-          .withFormUrlEncodedBody(YesNoChoice -> NoValue))
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get mustBe controllers.routes.IncomeSourceSummaryController.onPageLoad(employmentId).url
-      }
-    }
-
-    "return BadRequest" when {
-      "there is a form validation error (standard form validation)" in {
-        val endEmploymentTest = createEndEmploymentTest
-        val employmentId = 1
-
-        when(endEmploymentJourneyCacheService.mandatoryValues(Matchers.anyVararg[String])(any()))
-          .thenReturn(Future.successful(Seq(employerName, employmentId.toString)))
-
-        val result = endEmploymentTest.submitDuplicateSubmissionWarning(fakePostRequest
-          .withFormUrlEncodedBody(YesNoChoice -> ""))
-
-        status(result) mustBe BAD_REQUEST
-      }
-    }
-  }
 
   def employmentWithAccounts(accounts:List[AnnualAccount]) = Employment("employer", Some("emp123"), new LocalDate(2000, 5, 20),
     None, accounts, "", "", 8, None, false, false)

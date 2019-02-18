@@ -102,4 +102,41 @@ class DuplicateSubmissionWarningControllerSpec extends PlaySpec with FakeTaiPlay
     }
   }
 
+  "submitEmploymentsDuplicateSubmissionWarning" must {
+    "redirect to the update remove employment decision page" when {
+      "I want to update my employment is selected" in {
+        val controller = new DuplicateSubmissionWarningControllerTest
+
+        val result = controller.submitEmploymentsDuplicateSubmissionWarning(fakePostRequest
+          .withFormUrlEncodedBody(YesNoChoice -> YesValue))
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get mustBe controllers.employments.routes.EndEmploymentController.employmentUpdateRemoveDecision.url
+      }
+    }
+
+    "redirect to the income source summary page" when {
+      "I want to return to my employment details is selected" in {
+        val controller = new DuplicateSubmissionWarningControllerTest
+
+        val result = controller.submitEmploymentsDuplicateSubmissionWarning(fakePostRequest
+          .withFormUrlEncodedBody(YesNoChoice -> NoValue))
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get mustBe controllers.routes.IncomeSourceSummaryController.onPageLoad(id.toInt).url
+      }
+    }
+
+    "return BadRequest" when {
+      "there is a form validation error (standard form validation)" in {
+        val controller = new DuplicateSubmissionWarningControllerTest
+
+        val result = controller.submitEmploymentsDuplicateSubmissionWarning(fakePostRequest
+          .withFormUrlEncodedBody(YesNoChoice -> ""))
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+  }
+
 }

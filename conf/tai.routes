@@ -58,8 +58,6 @@ POST        /add-pension-provider/check-your-answers                            
 
 GET         /add-pension-provider/success                                              @controllers.pensions.AddPensionProviderController.confirmation
 
-POST        /update-remove-employment/warning                                          @controllers.employments.EndEmploymentController.submitDuplicateSubmissionWarning
-
 GET         /update-remove-employment/decision-page                                    @controllers.employments.EndEmploymentController.employmentUpdateRemoveDecision
 GET         /update-remove-employment/decision/:empId                                  @controllers.employments.EndEmploymentController.employmentUpdateRemove(empId: Int)
 POST        /update-remove-employment/decision                                         @controllers.employments.EndEmploymentController.handleEmploymentUpdateRemove
@@ -287,3 +285,4 @@ GET         /update-income/next-year/income/:empId/success                      
 
 GET         /duplicate-submission-warning                                              @controllers.DuplicateSubmissionWarningController.duplicateSubmissionWarning
 POST        /duplicate-submission-warning                                              @controllers.DuplicateSubmissionWarningController.submitDuplicateSubmissionWarning
+POST        /duplicate-submission-warning/emp                                          @controllers.DuplicateSubmissionWarningController.submitEmploymentsDuplicateSubmissionWarning
