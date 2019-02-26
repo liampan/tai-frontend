@@ -113,7 +113,7 @@ class WhatDoYouWantToDoTileViewSpec extends TaiViewSpec {
         urBanner.text() startsWith Messages("tai.urbanner.title")
         urDismissedText.text() must include(Messages("tai.urbanner.reject"))
         urBanner.text() must include(Messages("tai.urbanner.text"))
-        urBannerHref.text() must include(Messages("tai.urbanner.link"))
+        urBannerHref.text() must include(ApplicationConfig.urBannerLink)
       }
 
     }
